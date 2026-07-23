@@ -17,7 +17,7 @@ export async function POST(request) {
     }
 
     const hashedPassword = await hashPassword(password);
-    const userRole = role === 'poster' ? 'poster' : 'learner';
+    const userRole = 'learner';
 
     const result = db.prepare(
       'INSERT INTO users (name, email, password_hash, role, bio) VALUES (?, ?, ?, ?, ?)'

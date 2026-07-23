@@ -66,6 +66,10 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ error: 'Only the poster of this task can delete it' }, { status: 403 });
     }
 
+    if (!['open', 'claimed'].includes(task.status)) {
+      return NextResponse.json({ error: 'Only open or claimed tasks can be deleted' }, { status: 400 });
+    }
+
     // Delete associated records in transaction
     const deleteTx = db.transaction(() => {
       db.prepare(`

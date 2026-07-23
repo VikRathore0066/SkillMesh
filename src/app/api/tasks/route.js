@@ -51,6 +51,10 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Please log in to post a task' }, { status: 401 });
     }
 
+    if (user.role !== 'poster') {
+      return NextResponse.json({ error: 'Only posters can create tasks' }, { status: 403 });
+    }
+
     const { title, description, skill_tags, deliverable_type, due_date } = await request.json();
 
     if (!title || !description || !skill_tags) {
