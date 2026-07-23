@@ -329,6 +329,11 @@ main {
   cursor: pointer;
 }
 
+.select option {
+  background-color: var(--color-surface-2);
+  color: var(--color-text-main);
+}
+
 /* ═══════════════════════════════════════════
    STATUS BADGES
    ═══════════════════════════════════════════ */

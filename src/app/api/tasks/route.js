@@ -9,6 +9,8 @@ export async function GET(request) {
     const skill = searchParams.get('skill');
     const search = searchParams.get('search');
 
+    console.log("🔍 API /api/tasks: Received status =", status, ", search =", search);
+
     let query = `
       SELECT t.*, u.name as poster_name, u.avatar_url as poster_avatar
       FROM tasks t

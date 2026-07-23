@@ -17,11 +17,12 @@ export default function TasksFeed() {
         if (filterStatus !== 'all') {
           url += `status=${filterStatus}&`;
         }
-        if (search) {
+                if (search) {
           url += `search=${encodeURIComponent(search)}`;
         }
         
-        const res = await fetch(url);
+        console.log("🌐 Frontend fetching tasks URL:", url);
+        const res = await fetch(url, { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
           setTasks(data.tasks || []);
