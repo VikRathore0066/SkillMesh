@@ -17,7 +17,7 @@ export default function TaskDetail({ params }) {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch('/api/auth/me', { credentials: 'init' });
+        const res = await fetch('/api/auth/me', { credentials: 'include' });
         if (res.ok) {
           const data = await res.json();
           setCurrentUser(data.user);
@@ -55,7 +55,7 @@ export default function TaskDetail({ params }) {
     try {
       const res = await fetch(`/api/tasks/${id}/claim`, {
         method: 'POST',
-        credentials: 'init'
+        credentials: 'include'
       });
       
       if (res.ok) {
@@ -63,7 +63,7 @@ export default function TaskDetail({ params }) {
         toast('Task claimed! It is now in your queue.', 'success');
       } else {
         const data = await res.json();
-        toast(data.message || 'Failed to claim task', 'error');
+        toast(data.error || 'Failed to claim task', 'error');
       }
     } catch (err) {
       toast('Network error occurred', 'error');
@@ -79,7 +79,7 @@ export default function TaskDetail({ params }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ artifact_url: submission.link, notes: submission.notes }),
-        credentials: 'init'
+        credentials: 'include'
       });
       
       if (res.ok) {
@@ -90,7 +90,7 @@ export default function TaskDetail({ params }) {
         toast('Work submitted for review!', 'success');
       } else {
         const data = await res.json();
-        toast(data.message || 'Failed to submit', 'error');
+        toast(data.error || 'Failed to submit', 'error');
       }
     } catch (err) {
       toast('Network error occurred', 'error');
