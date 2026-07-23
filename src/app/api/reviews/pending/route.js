@@ -15,7 +15,8 @@ export async function GET(request) {
       // Posters review submissions for their tasks that aren't verified yet
       // And where the poster hasn't already reviewed
       pendingReviews = db.prepare(`
-        SELECT s.id as submission_id, t.title as task_title, u.name as learner_name, s.submitted_at
+        SELECT s.id as submission_id, t.title as task_title, u.name as learner_name, s.submitted_at,
+               s.artifact_url, s.notes
         FROM submissions s
         JOIN tasks t ON s.task_id = t.id
         JOIN users u ON s.learner_id = u.id
@@ -25,7 +26,8 @@ export async function GET(request) {
     } else {
       // Learners review submissions they are assigned to
       pendingReviews = db.prepare(`
-        SELECT s.id as submission_id, t.title as task_title, u.name as learner_name, v.assigned_at
+        SELECT s.id as submission_id, t.title as task_title, u.name as learner_name, v.assigned_at,
+               s.artifact_url, s.notes
         FROM verifier_assignments v
         JOIN submissions s ON v.submission_id = s.id
         JOIN tasks t ON s.task_id = t.id

@@ -78,10 +78,10 @@ export default function PortfolioPage({ params }) {
           {/* Reputation Badge */}
           <div style={{ background: 'var(--color-surface-2)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--glass-border)', textAlign: 'center', minWidth: '180px' }}>
             <div style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-warning)', lineHeight: 1 }}>
-              {Math.round(user.reputation_score || 0)}
+              {user.reputation_score ? user.reputation_score.toFixed(1) : '0.0'}
             </div>
             <div className="flex justify-center" style={{ margin: '0.5rem 0' }}>
-              <StarRating value={Math.round((user.reputation_score || 0) / 20) || 0} readonly size={16} />
+              <StarRating value={Math.round(user.reputation_score || 0)} readonly size={16} />
             </div>
             <div className="text-muted" style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               {user.total_reviews || 0} Peer Reviews
