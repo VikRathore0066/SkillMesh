@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useToast } from '../../../components/Toast';
 
 export default function TaskDetail({ params }) {
-  const { id } = React.use(params);
+  const { id } = params;
   const toast = useToast();
   const [task, setTask] = useState(null);
   const [submissionData, setSubmissionData] = useState(null);

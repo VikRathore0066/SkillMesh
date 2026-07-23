@@ -4,7 +4,7 @@ import StarRating from '../../../components/StarRating';
 import EmptyState from '../../../components/EmptyState';
 
 export default function PortfolioPage({ params }) {
-  const { id } = React.use(params);
+  const { id } = params;
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
