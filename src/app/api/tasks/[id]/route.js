@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/db';
+import { getUser } from '@/lib/auth';
 
 export async function GET(request, { params }) {
   try {
@@ -43,6 +44,49 @@ export async function GET(request, { params }) {
     return NextResponse.json({ task, submission: submission || null, reviews });
   } catch (error) {
     console.error('Task GET error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request, { params }) {
+  try {
+    const user = await getUser(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Please log in to delete tasks' }, { status: 401 });
+    }
+
+    const { id } = await params;
+
+    const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
+    if (!task) {
+      return NextResponse.json({ error: 'Task not found' }, { status: 404 });
+    }
+
+    if (task.poster_id !== user.id) {
+      return NextResponse.json({ error: 'Only the poster of this task can delete it' }, { status: 403 });
+    }
+
+    // Delete associated records in transaction
+    const deleteTx = db.transaction(() => {
+      db.prepare(`
+        DELETE FROM verifier_assignments 
+        WHERE submission_id IN (SELECT id FROM submissions WHERE task_id = ?)
+      `).run(id);
+
+      db.prepare(`
+        DELETE FROM reviews 
+        WHERE submission_id IN (SELECT id FROM submissions WHERE task_id = ?)
+      `).run(id);
+
+      db.prepare('DELETE FROM submissions WHERE task_id = ?').run(id);
+      db.prepare('DELETE FROM tasks WHERE id = ?').run(id);
+    });
+
+    deleteTx();
+
+    return NextResponse.json({ message: 'Task deleted successfully' });
+  } catch (error) {
+    console.error('Task DELETE error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

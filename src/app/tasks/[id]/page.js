@@ -2,10 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useToast } from '../../../components/Toast';
+import { useRouter } from 'next/navigation';
 
 export default function TaskDetail({ params }) {
   const { id } = params;
   const toast = useToast();
+  const router = useRouter();
   const [task, setTask] = useState(null);
   const [submissionData, setSubmissionData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -99,6 +101,52 @@ export default function TaskDetail({ params }) {
     }
   };
 
+  const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
+      return;
+    }
+    
+    try {
+      const res = await fetch(`/api/tasks/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      
+      if (res.ok) {
+        toast('Task deleted successfully!', 'success');
+        router.push('/tasks');
+      } else {
+        const data = await res.json();
+        toast(data.error || 'Failed to delete task', 'error');
+      }
+    } catch (err) {
+      toast('Network error occurred', 'error');
+    }
+  };
+
+  const handleUnclaim = async () => {
+    if (!confirm('Are you sure you want to give up on this task? It will be made available for other learners.')) {
+      return;
+    }
+    
+    try {
+      const res = await fetch(`/api/tasks/${id}/unclaim`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+      
+      if (res.ok) {
+        setTask({ ...task, status: 'open', claimed_by: null });
+        toast('You have given up on this task. It is now open again.', 'info');
+      } else {
+        const data = await res.json();
+        toast(data.error || 'Failed to give up on task', 'error');
+      }
+    } catch (err) {
+      toast('Network error occurred', 'error');
+    }
+  };
+
   if (loading) return <div className="container" style={{ padding: '4rem 1rem' }}><div className="skeleton" style={{ height: '400px' }}></div></div>;
   if (!task) return <div className="container" style={{ padding: '4rem 1rem' }}>Task not found</div>;
 
@@ -128,6 +176,16 @@ export default function TaskDetail({ params }) {
           {task.status === 'claimed' && isClaimedByMe && !submitMode && (
             <button onClick={() => setSubmitMode(true)} className="btn btn-primary" style={{ padding: '0.75rem 1.5rem' }}>
               Submit Work
+            </button>
+          )}
+          {task.status === 'claimed' && isClaimedByMe && (
+            <button onClick={handleUnclaim} className="btn btn-danger" style={{ padding: '0.75rem 1.5rem' }}>
+              Give Up Task
+            </button>
+          )}
+          {currentUser && task.poster_id === currentUser.id && (task.status === 'open' || task.status === 'claimed') && (
+            <button onClick={handleDelete} className="btn btn-danger" style={{ padding: '0.75rem 1.5rem' }}>
+              Delete Task
             </button>
           )}
         </div>
