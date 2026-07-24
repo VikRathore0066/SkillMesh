@@ -2,11 +2,24 @@ import Database from 'better-sqlite3';
 import path from 'path';
 import bcrypt from 'bcryptjs';
 
-const dbPath = path.join(process.cwd(), 'skillmesh.db');
+const isVercel = process.env.VERCEL === '1' || process.env.NOW_BUILDER === '1';
+
+const dbPath = isVercel
+  ? '/tmp/skillmesh.db'
+  : (process.env.DATABASE_PATH
+      ? (path.isAbsolute(process.env.DATABASE_PATH)
+          ? process.env.DATABASE_PATH
+          : path.join(process.cwd(), process.env.DATABASE_PATH))
+      : path.join(process.cwd(), 'skillmesh.db'));
+
 const db = new Database(dbPath);
 
 export function initDb() {
-  db.pragma('journal_mode = WAL');
+  try {
+    db.pragma('journal_mode = WAL');
+  } catch (err) {
+    console.warn('SQLite WAL mode not supported, falling back to default:', err);
+  }
   db.pragma('foreign_keys = ON');
 
   db.exec(`
